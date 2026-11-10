@@ -185,7 +185,7 @@
             <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
 
             <h2 style="color:#79c0ff;">Fase 1: Preparación y Cuentas de Acceso</h2>
-            <p>La simulación MMOM funciona como un mercado cerrado donde compiten exactamente <strong>7 empresas (discotecas)</strong> durante <strong>8 rondas</strong>. Los accesos del sistema son:</p>
+            <p>La simulación MMOM funciona como un mercado competitivo cerrado donde operan exactamente las <strong>7 discotecas oficiales del catálogo</strong> a lo largo de <strong>8 rondas</strong>. Los accesos del sistema son:</p>
             
             <div style="overflow-x:auto;">
                 <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;">
@@ -194,72 +194,94 @@
                             <th style="padding:0.6rem;border:1px solid #37455f;">Rol</th>
                             <th style="padding:0.6rem;border:1px solid #37455f;">Correo</th>
                             <th style="padding:0.6rem;border:1px solid #37455f;">Contraseña</th>
-                            <th style="padding:0.6rem;border:1px solid #37455f;">Empresa Asignada</th>
+                            <th style="padding:0.6rem;border:1px solid #37455f;">Discoteca del Catálogo Asignada</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;"><span style="background:#238636;color:#fff;padding:0.1rem 0.4rem;border-radius:4px;">ADMIN</span></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>admin@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Control Central / Facilitador</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 1</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador1@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Apolo</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 2</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador2@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Boreal</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 3</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador3@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Cosmos</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 4</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador4@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Danubio</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 5</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador5@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Eclipse</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 6</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador6@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Fénix</td></tr>
-                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 7</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador7@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Club Galaxia</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;"><span style="background:#238636;color:#fff;padding:0.1rem 0.4rem;border-radius:4px;font-weight:bold;">ADMIN</span></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>admin@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Control Central / Facilitador</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 1</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador1@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">La Paceña</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 2</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador2@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Jet</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 3</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador3@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Luna Park</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 4</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador4@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Forum</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 5</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador5@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Fabri-K</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 6</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador6@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Ibiza</td></tr>
+                        <tr><td style="padding:0.6rem;border:1px solid #37455f;">JUGADOR 7</td><td style="padding:0.6rem;border:1px solid #37455f;"><code>jugador7@mmom.com</code></td><td style="padding:0.6rem;border:1px solid #37455f;"><code>password123</code></td><td style="padding:0.6rem;border:1px solid #37455f;">Green Planet</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
 
-            <h2 style="color:#79c0ff;">Fase 2: Cómo Crear una Partida</h2>
+            <h2 style="color:#79c0ff;">Fase 2: Cómo Crear una Partida (1 Clic)</h2>
             <ol style="padding-left:1.2rem;">
-                <li>Haz clic en el botón verde <strong>"Crear Nueva Partida"</strong> en la pestaña de Partidas.</li>
-                <li>Escribe un nombre identificable para la sesión (ejemplo: <em>"Torneo Grupo B"</em>).</li>
-                <li>Deja marcada la casilla <strong>"Configuración Automática con 1 Clic"</strong>. El sistema creará las 7 empresas y vinculará a cada jugador automáticamente.</li>
-                <li>Presiona <strong>"Crear y Preparar Partida"</strong>. La partida quedará en estado <code>PREPARADA</code>.</li>
+                <li>Haz clic en el botón verde <strong>"➕ Crear Nueva Partida"</strong> en la pestaña de Partidas.</li>
+                <li>Escribe un nombre identificable para la sesión (ejemplo: <em>"Torneo Gestión Estratégica 2026"</em>).</li>
+                <li>Deja marcada la casilla <strong>"Configuración Automática con 1 Clic"</strong>. El sistema creará las 7 empresas, vinculará a los 7 jugadores oficiales y preparará las 8 rondas automáticamente.</li>
+                <li>Presiona <strong>"🚀 Crear y Preparar Partida"</strong>. La partida quedará en estado <code>PREPARADA</code>.</li>
             </ol>
 
             <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
 
             <h2 style="color:#79c0ff;">Fase 3: Inicio de Ronda y Control del Reloj (20 Minutos)</h2>
             <ol style="padding-left:1.2rem;">
-                <li>Haz clic en <strong>"Abrir Consola de Simulación"</strong> en la tarjeta de la partida creada.</li>
-                <li>En el bloque de administración verás el botón verde <strong>"▶️ Iniciar Ronda 1"</strong>.</li>
-                <li>Al presionarlo, el reloj central del servidor arrancará en cuenta regresiva de <strong>20 minutos (1200 segundos)</strong>.</li>
-                <li>El reloj está coordinado en el servidor UTC: todos los participantes verán el mismo tiempo exacto restante en sus pantallas.</li>
+                <li>Haz clic en <strong>"🎮 Abrir Consola de Simulación"</strong> en la tarjeta de la partida creada.</li>
+                <li>En la pestaña <strong>🛠️ Panel del Operador</strong> presiona el botón verde <strong>"▶️ Iniciar Ronda 1"</strong>.</li>
+                <li>El reloj central del servidor arrancará en cuenta regresiva de <strong>20 minutos (1200 segundos)</strong> sincronizado vía UTC para todos los participantes.</li>
             </ol>
 
             <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
 
-            <h2 style="color:#79c0ff;">Fase 4: Dinámica de las 7 Etapas de Decisión</h2>
+            <h2 style="color:#79c0ff;">Fase 4: Dinámica de Decisiones y Modo Demo (Autocompletar)</h2>
             <p>Cada ronda contiene una secuencia estricta de 7 decisiones gerenciales:</p>
             <ul>
-                <li><strong>Etapa 1: Personal y RRHH:</strong> Contratación de personal operativo, sueldos y guardias.</li>
-                <li><strong>Etapa 2: Inventario y Compras:</strong> Aprovisionamiento de bebidas y cálculo de Costo Promedio Ponderado (CPP).</li>
-                <li><strong>Etapa 3: Precios:</strong> Fijación del precio de entrada y consumiciones.</li>
-                <li><strong>Etapa 4: Publicidad y Marketing:</strong> Asignación de presupuesto por segmento de mercado.</li>
-                <li><strong>Etapa 5: Inversiones:</strong> Obras, ampliación de aforo o mejoras de infraestructura.</li>
-                <li><strong>Etapa 6: Estudios de Mercado:</strong> Compra de reportes de inteligencia comercial.</li>
-                <li><strong>Etapa 7: Artistas y Espectáculos:</strong> <em>(Bloqueada en Ronda 1; habilitada de Ronda 2 a 8)</em>.</li>
+                <li><strong>Etapa 1: Personal:</strong> Contratación y retiros (Personal base: 6 colaboradores; nómina Bs 550 c/u).</li>
+                <li><strong>Etapa 2: Inventario:</strong> Compra de bebidas (Bs 12/u) y mixers (Bs 5/u) con valorización CPP.</li>
+                <li><strong>Etapa 3: Precios:</strong> Entrada general, bebida suelta, combo (1 bebida + 1 mixer) y servicio VIP.</li>
+                <li><strong>Etapa 4: Publicidad:</strong> Presupuesto de visibilidad y posicionamiento comercial.</li>
+                <li><strong>Etapa 5: Infraestructura:</strong> Ampliación de aforo (Bs 250/plaza) y mesas VIP (Bs 1.800/mesa).</li>
+                <li><strong>Etapa 6: Investigación:</strong> Presupuesto de información gerencial y benchmarking.</li>
+                <li><strong>Etapa 7: Artistas Invitados:</strong> <em>(Bloqueada en Ronda 1; habilitada de la Ronda 2 a la 8)</em>.</li>
             </ul>
 
-            <div style="background:#131e30;border-left:4px solid #58a6ff;padding:1rem;margin:1rem 0;border-radius:4px;">
-                <strong>Instrucciones para el Operador al avanzar de etapa:</strong><br>
-                1. Avisa a los participantes: <em>"Tienen 2 minutos para confirmar la Etapa actual"</em>.<br>
-                2. Los jugadores guardan su borrador y marcan la casilla de confirmación inmutable.<br>
-                3. Una vez confirmados, el Administrador hace clic en <strong>"⏩ Avanzar Etapa"</strong>.<br>
-                4. La pantalla de todos los jugadores se actualizará automáticamente a la siguiente etapa.
+            <div style="background:#131e30;border-left:4px solid #e3b341;padding:1rem;margin:1rem 0;border-radius:4px;">
+                <strong style="color:#e3b341;">⚡ Asistencia Rápida al Operador (Modo Demostración):</strong><br>
+                Si estás realizando una demostración individual, evaluando el sistema o algún equipo no asistió, no necesitas iniciar sesión con los 7 usuarios.<br>
+                En el <strong>🛠️ Panel del Operador</strong> dispones de dos botones inmediatos:<br>
+                • <strong>⚡ Autocompletar Etapa Actual:</strong> Genera decisiones óptimas y equilibradas para los 7 equipos en la etapa actual.<br>
+                • <strong>⚡ Autocompletar Toda la Ronda:</strong> Completa y confirma de una sola vez todas las etapas pendientes de la ronda para las 7 discotecas.
             </div>
+
+            <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
+
+            <h2 style="color:#79c0ff;">Fase 5: Cierre de Ronda, Simulación y Resultados MIFIV</h2>
+            <ol style="padding-left:1.2rem;">
+                <li>Cuando los 7 equipos hayan confirmado sus etapas (o tras usar el autocompletado demo), pulsa <strong>"📊 Validar y Cerrar Ronda con MIFIV"</strong>.</li>
+                <li>El motor ejecutará el cálculo de demanda Softmax (4 segmentos: Universitarios, Jóvenes, Adultos y VIP), calculará la capacidad operativa, liquidará ventas de barra/entradas, deducirá nóminas y mantenimiento, y emitirá préstamos PALO automáticos si alguna discoteca requirió liquidez obligatoria.</li>
+                <li>El sistema generará la reconciliación MIFIV y publicará los resultados en las pestañas:
+                    <ul>
+                        <li><strong>📈 Resultados Financieros:</strong> Ingresos, egresos, utilidad neta, demanda atendida/rechazada y saldo en caja.</li>
+                        <li><strong>🏆 Clasificación MIEC:</strong> Ranking acumulado ponderado (Rentabilidad 30%, Mercado 25%, Logística 20%, Satisfacción 15%, Artistas 10%).</li>
+                    </ul>
+                </li>
+                <li>En el Panel del Operador aparecerá el botón <strong>"▶️ Iniciar Ronda 2 →"</strong> (y así sucesivamente hasta la Ronda 8).</li>
+            </ol>
+
+            <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
+
+            <h2 style="color:#79c0ff;">Fase 6: Laboratorio Financiero (MPEAS / MEFER) y Exportación</h2>
+            <ul style="padding-left:1.2rem;">
+                <li><strong>🧮 Laboratorio MPEAS / MEFER:</strong> Permite a los participantes proyectar antes de invertir: calcular el punto de equilibrio en personas, análisis de sensibilidad (+/- 15%) y el Valor Actual Neto (VAN) de inversiones con fondos propios.</li>
+                <li><strong>💾 Exportación JSON:</strong> En cualquier momento puedes pulsar el botón <code>💾 JSON</code> para descargar el respaldo estructurado completo de la partida (equipos, decisiones inmutables, rondas, candidaturas MIFIV y pistas de auditoría).</li>
+            </ul>
 
             <hr style="border:0;border-top:1px solid #37455f;margin:1.5rem 0;">
 
             <h2 style="color:#f85149;">⚠️ Decálogo Anti-Errores para el Operador</h2>
             <ul style="padding-left:1.2rem;color:#eef1fb;">
-                <li><strong>Evita el doble clic compulsivo:</strong> Los botones tienen protección contra reenvío, pero es buena práctica hacer un solo clic y esperar el mensaje de confirmación.</li>
-                <li><strong>Confirmación Inmutable:</strong> Una vez que un jugador presiona "Confirmar borrador", esa decisión queda blindada en la base de datos y no puede reescribirse.</li>
-                <li><strong>Vencimiento de los 20 minutos:</strong> Al expirar el tiempo de la ronda, el servidor bloquea las decisiones no enviadas para proteger la integridad financiera del torneo.</li>
-                <li><strong>MFA Administrativo:</strong> Tu cuenta <code>admin@mmom.com</code> tiene su segundo factor activado por defecto para garantizar que las acciones de avance de etapa sean autorizadas.</li>
+                <li><strong>Protección anti-doble clic:</strong> Todos los botones críticos del sistema se deshabilitan visualmente al presionarse para impedir envíos duplicados. Realiza un solo clic y aguarda la notificación verde.</li>
+                <li><strong>Inmutabilidad formal:</strong> Una vez confirmada una etapa, la decisión no puede modificarse en la base de datos (según las reglas de integridad académica del MMOM).</li>
+                <li><strong>Vencimiento del reloj (20 min):</strong> Si el cronómetro de la ronda llega a cero, el servidor bloquea nuevas confirmaciones para garantizar juego limpio en torneos cronometrados.</li>
+                <li><strong>Financiamiento PALO exclusivo:</strong> Los préstamos automáticos PALO (límite Bs 20.000) solo cubren nóminas y mantenimiento insatisfechos; nunca pueden utilizarse para comprar inventario, contratar publicidad ni hacer obras.</li>
             </ul>
         </article>
     </div>
