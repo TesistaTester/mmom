@@ -15,6 +15,8 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 if [ "${RUN_MIGRATIONS}" = "true" ]; then
     echo "[Entrypoint] Ejecutando migraciones de base de datos..."
     php artisan migrate --force --no-interaction || echo "[Entrypoint] Advertencia: Las migraciones no pudieron ejecutarse (verificar conexión a BD)."
+    echo "[Entrypoint] Verificando usuarios iniciales..."
+    php artisan db:seed --force --no-interaction || true
 fi
 
 # Optimizar Laravel para producción
