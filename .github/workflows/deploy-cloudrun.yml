@@ -30,23 +30,9 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy $SERVICE_NAME \
+            --project $PROJECT_ID \
             --source . \
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "\
-              APP_NAME=MMOM,\
-              APP_ENV=production,\
-              APP_DEBUG=false,\
-              APP_KEY=${{ secrets.APP_KEY }},\
-              LOG_CHANNEL=stderr,\
-              DB_CONNECTION=pgsql,\
-              DB_HOST=${{ secrets.SUPABASE_HOST }},\
-              DB_PORT=5432,\
-              DB_DATABASE=postgres,\
-              DB_USERNAME=postgres,\
-              DB_PASSWORD=${{ secrets.SUPABASE_PASSWORD }},\
-              DB_SSLMODE=require,\
-              RUN_MIGRATIONS=true,\
-              SESSION_DRIVER=database,\
-              CACHE_STORE=database"
+            --set-env-vars "APP_NAME=MMOM,APP_ENV=production,APP_DEBUG=false,APP_KEY=${{ secrets.APP_KEY }},LOG_CHANNEL=stderr,DB_CONNECTION=pgsql,DB_HOST=${{ secrets.SUPABASE_HOST }},DB_PORT=5432,DB_DATABASE=postgres,DB_USERNAME=postgres,DB_PASSWORD=${{ secrets.SUPABASE_PASSWORD }},DB_SSLMODE=require,RUN_MIGRATIONS=true,SESSION_DRIVER=database,CACHE_STORE=database"
