@@ -16,7 +16,7 @@ label{display:block;margin:.7rem 0}.error{color:#ffc1bc}.notice{padding:.8rem;ba
     @auth
     <div style="display:flex;align-items:center;gap:1rem;">
         <span class="muted" style="font-size:0.9rem;">👤 {{ auth()->user()->display_name ?? auth()->user()->email }}</span>
-        <form method="POST" action="{{ route('logout') }}" style="display:inline;margin:0;">
+        <form method="POST" action="/logout" style="display:inline;margin:0;">
             @csrf
             <button type="submit" class="secondary" style="padding:0.35rem 0.75rem;font-size:0.8rem;">Cerrar sesión</button>
         </form>
