@@ -24,14 +24,25 @@ class MmomLoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('mmom.games.index'));
-        }
+        try {
+            if (Auth::attempt($credentials, $request->boolean('remember'))) {
+                $request->session()->regenerate();
+                return redirect()->intended(route('mmom.games.index'));
+            }
 
-        throw ValidationException::withMessages([
-            'email' => ['Las credenciales proporcionadas no coinciden con nuestros registros.'],
-        ]);
+            throw ValidationException::withMessages([
+                'email' => ['Las credenciales proporcionadas no coinciden con nuestros registros.'],
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Login failure: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return back()->withInput()->withErrors([
+                'email' => 'Error de autenticación: ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function logout(Request $request)
