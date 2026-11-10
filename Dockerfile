@@ -16,10 +16,11 @@ RUN composer install \
 # ==============================================================
 FROM php:8.2-apache-bookworm
 
-# Instalar extensiones mediante el instalador oficial de extensiones PHP para Docker (mucho más rápido)
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+# Instalar extensiones mediante el instalador oficial de extensiones PHP para Docker (rápido y compatible sin BuildKit)
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/install-php-extensions
 
-RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+RUN chmod +x /usr/local/bin/install-php-extensions \
+    && apt-get update && apt-get install -y --no-install-recommends unzip \
     && install-php-extensions pdo_pgsql pgsql bcmath zip opcache \
     && a2enmod rewrite headers \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
