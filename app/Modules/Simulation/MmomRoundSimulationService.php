@@ -368,6 +368,11 @@ final class MmomRoundSimulationService
                 $runId = (string)Str::uuid();
                 $configHash = hash('sha256', "round-{$roundNumber}-cfg");
                 $seedHash = hash('sha256', "seed-{$gameId}-{$roundNumber}");
+                $outputPayload = [
+                    'round' => $roundNumber,
+                    'results' => array_values($summaries),
+                    'companies' => array_values($summaries),
+                ];
                 DB::table('simulation.engine_runs')->insert([
                     'id' => $runId,
                     'game_id' => $gameId,
@@ -376,7 +381,7 @@ final class MmomRoundSimulationService
                     'config_hash' => $configHash,
                     'seed_hash' => $seedHash,
                     'input_data' => json_encode(['round' => $roundNumber], JSON_THROW_ON_ERROR),
-                    'output_data' => json_encode(array_values($summaries), JSON_THROW_ON_ERROR),
+                    'output_data' => json_encode($outputPayload, JSON_THROW_ON_ERROR),
                     'status' => 'preview',
                     'created_at' => now()
                 ]);

@@ -133,7 +133,7 @@ final class MmomReadService
         if ($latestRun) {
             $parsedRun = json_decode((string)$latestRun->output_data, true);
             if (is_array($parsedRun) && !empty($parsedRun)) {
-                $lastRoundResults = $parsedRun;
+                $lastRoundResults = $parsedRun['results'] ?? $parsedRun['companies'] ?? $parsedRun;
             }
         }
 
