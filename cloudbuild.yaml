@@ -1,0 +1,26 @@
+steps:
+  # 1. Construir la imagen Docker usando Cloud Build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/mmom-backend:$COMMIT_SHA', '-t', 'gcr.io/$PROJECT_ID/mmom-backend:latest', '.']
+
+  # 2. Subir la imagen a Google Container Registry / Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/mmom-backend:latest']
+
+  # 3. Desplegar en Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'mmom-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/mmom-backend:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/mmom-backend:latest'

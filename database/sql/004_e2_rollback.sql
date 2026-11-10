@@ -1,0 +1,20 @@
+-- Development-only rollback. Never execute on real game histories.
+DROP TABLE IF EXISTS game.stage_transitions;
+DROP TRIGGER IF EXISTS protect_confirmed_decisions ON game.confirmed_decisions;
+DROP FUNCTION IF EXISTS game.reject_confirmed_decision_mutation();
+DROP TABLE IF EXISTS game.confirmed_decisions;
+DROP TABLE IF EXISTS game.decision_drafts;
+DROP INDEX IF EXISTS game.round_one_active_per_game;
+ALTER TABLE game.rounds DROP COLUMN IF EXISTS remaining_seconds;
+ALTER TABLE game.rounds DROP COLUMN IF EXISTS paused_at;
+ALTER TABLE game.rounds DROP COLUMN IF EXISTS current_stage;
+ALTER TABLE game.rounds DROP COLUMN IF EXISTS state_version;
+ALTER TABLE game.games DROP CONSTRAINT IF EXISTS game_current_round_status_chk;
+ALTER TABLE game.games DROP COLUMN IF EXISTS current_round;
+ALTER TABLE game.games DROP COLUMN IF EXISTS state_version;
+ALTER TABLE identity.users DROP COLUMN IF EXISTS remember_token;
+ALTER TABLE identity.users DROP COLUMN IF EXISTS email_verified_at;
+ALTER TABLE identity.users DROP COLUMN IF EXISTS two_factor_confirmed_at;
+ALTER TABLE identity.users DROP COLUMN IF EXISTS two_factor_recovery_codes;
+ALTER TABLE identity.users DROP COLUMN IF EXISTS two_factor_secret;
+DROP TABLE IF EXISTS identity.user_roles;
