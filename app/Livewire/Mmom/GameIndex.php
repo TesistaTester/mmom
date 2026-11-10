@@ -119,6 +119,51 @@ final class GameIndex extends Component
         }
     }
 
+    public function deleteGame(string $gameId): void
+    {
+        $actor = Auth::user();
+        abort_unless($actor instanceof MmomUser, 403);
+
+        $isAdmin = DB::table('identity.user_roles')
+            ->where('user_id', $actor->id)
+            ->where('role', 'admin')
+            ->exists();
+        abort_unless($isAdmin, 403);
+
+        try {
+            DB::transaction(function () use ($gameId) {
+                $game = DB::table('game.games')->where('id', $gameId)->first();
+                if (!$game) return;
+
+                DB::table('game.assignments')->where('game_id', $gameId)->update([
+                    'is_current' => false,
+                    'unassigned_at' => now()
+                ]);
+
+                try {
+                    DB::table('game.confirmed_decisions')->where('game_id', $gameId)->delete();
+                    DB::table('game.decision_drafts')->where('game_id', $gameId)->delete();
+                    DB::table('game.stage_transitions')->where('game_id', $gameId)->delete();
+                    DB::table('game.assignments')->where('game_id', $gameId)->delete();
+                    DB::table('game.rounds')->where('game_id', $gameId)->delete();
+                    DB::table('game.companies')->where('game_id', $gameId)->delete();
+                    DB::table('audit.change_events')->where('game_id', $gameId)->delete();
+                    DB::table('game.games')->where('id', $gameId)->delete();
+                } catch (\Throwable $t) {
+                    DB::table('game.games')->where('id', $gameId)->update([
+                        'status' => 'archived',
+                        'updated_at' => now()
+                    ]);
+                }
+            }, 3);
+
+            $this->actionNotice = '✓ Partida eliminada del listado correctamente.';
+            $this->actionError = '';
+        } catch (\Throwable $e) {
+            $this->actionError = 'Error al eliminar la partida: ' . $e->getMessage();
+        }
+    }
+
     public function render(MmomReadService $reads)
     {
         $actor = Auth::user();

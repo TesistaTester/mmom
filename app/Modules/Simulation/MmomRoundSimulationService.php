@@ -120,7 +120,6 @@ final class MmomRoundSimulationService
                             'stage' => $stage,
                             'user_id' => $userId,
                             'payload' => $encoded,
-                            'created_at' => now(),
                             'updated_at' => now()
                         ]);
                     }
@@ -334,15 +333,61 @@ final class MmomRoundSimulationService
                 ];
             }
 
-            // Stage candidate in MIFIV / MIEC
-            $staged = $this->mifivDraftService->stageCandidate($gameId, $roundNumber, $cumulativeMetrics, $evidenceReports);
+            // Transition round to processing state so MifivDraftService accepts it
+            DB::table('game.rounds')->where('id', $round->id)->update([
+                'status' => 'processing',
+                'state_version' => $round->state_version + 1
+            ]);
+
+            // Stage candidate in MIFIV / MIEC if not already staged
+            $existingCandidate = DB::table('analytics.mifiv_candidates')
+                ->where('game_id', $gameId)
+                ->where('round_number', $roundNumber)
+                ->first();
+
+            if (!$existingCandidate) {
+                $staged = $this->mifivDraftService->stageCandidate($gameId, $roundNumber, $cumulativeMetrics, $evidenceReports);
+                $candidateId = $staged['candidate_id'] ?? null;
+                $rankingRows = $staged['ranking']['ranking'] ?? [];
+            } else {
+                $candidateId = $existingCandidate->id;
+                $rankingRows = DB::table('analytics.miec_candidate_scores')
+                    ->where('candidate_id', $candidateId)
+                    ->orderBy('rank')
+                    ->get()
+                    ->all();
+            }
+
+            // Save operational & financial results into simulation.engine_runs for reporting
+            $existingRun = DB::table('simulation.engine_runs')
+                ->where('game_id', $gameId)
+                ->where('round_number', $roundNumber)
+                ->first();
+
+            if (!$existingRun) {
+                $runId = (string)Str::uuid();
+                $configHash = hash('sha256', "round-{$roundNumber}-cfg");
+                $seedHash = hash('sha256', "seed-{$gameId}-{$roundNumber}");
+                DB::table('simulation.engine_runs')->insert([
+                    'id' => $runId,
+                    'game_id' => $gameId,
+                    'round_number' => $roundNumber,
+                    'engine_version' => 'MMOM-E4-V0.1',
+                    'config_hash' => $configHash,
+                    'seed_hash' => $seedHash,
+                    'input_data' => json_encode(['round' => $roundNumber], JSON_THROW_ON_ERROR),
+                    'output_data' => json_encode(array_values($summaries), JSON_THROW_ON_ERROR),
+                    'status' => 'preview',
+                    'created_at' => now()
+                ]);
+            }
 
             // Close the current round
             DB::table('game.rounds')->where('id', $round->id)->update([
                 'status' => 'closed',
                 'closed_at' => now(),
                 'current_stage' => null,
-                'state_version' => $round->state_version + 1
+                'state_version' => $round->state_version + 2
             ]);
 
             // Update game status
@@ -361,15 +406,15 @@ final class MmomRoundSimulationService
 
             $this->audit->record($gameId, $actor->id, 'round.simulated_and_closed', [
                 'round' => $roundNumber,
-                'candidate_id' => $staged['candidate_id'] ?? null,
+                'candidate_id' => $candidateId,
                 'is_final_round' => ($roundNumber >= 8)
             ]);
 
             return [
                 'round' => $roundNumber,
                 'summaries' => $summaries,
-                'ranking' => $staged['ranking']['ranking'] ?? [],
-                'candidate_id' => $staged['candidate_id'] ?? null,
+                'ranking' => $rankingRows,
+                'candidate_id' => $candidateId,
                 'is_final' => ($roundNumber >= 8)
             ];
         }, 3);

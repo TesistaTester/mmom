@@ -20,6 +20,21 @@ final class GameConsole extends Component
     public ?int $editedStage = null;
     public bool $isBusy = false;
 
+    // Campos visuales interactivos para los participantes
+    public int $formHire = 0;
+    public int $formFire = 0;
+    public int $formDrinks = 130;
+    public int $formMixers = 100;
+    public float $formTicket = 30.0;
+    public float $formDrink = 35.0;
+    public float $formCombo = 45.0;
+    public float $formVip = 120.0;
+    public float $formAdBudget = 800.0;
+    public int $formCapacity = 0;
+    public int $formVipTables = 0;
+    public float $formResearchBudget = 200.0;
+    public float $formArtistBudget = 800.0;
+
     public function mount(string $gameId, MmomReadService $reads): void
     {
         $this->gameId = $gameId;
@@ -34,11 +49,112 @@ final class GameConsole extends Component
         return $actor;
     }
 
+    public function getStageTemplatePayload(int $stage): array
+    {
+        return match ($stage) {
+            1 => [
+                'hire' => 0,
+                'fire' => 0,
+                'observacion' => 'Personal base: 6 colaboradores. Nómina fija: Bs 550 c/u'
+            ],
+            2 => [
+                'drinks' => 130,
+                'mixers' => 100,
+                'observacion' => 'Bebidas a Bs 12/u, Mixers a Bs 5/u. Consumo por CPP'
+            ],
+            3 => [
+                'ticket' => 30.00,
+                'drink' => 35.00,
+                'combo' => 45.00,
+                'vip' => 120.00,
+                'observacion' => 'Precios de venta al público en barra, entrada y VIP'
+            ],
+            4 => [
+                'budget' => 800.00,
+                'observacion' => 'Presupuesto de publicidad y visibilidad de marca'
+            ],
+            5 => [
+                'capacity' => 0,
+                'vipTables' => 0,
+                'observacion' => 'Bs 250 por plaza nueva, Bs 1.800 por mesa VIP (5 plazas)'
+            ],
+            6 => [
+                'budget' => 200.00,
+                'observacion' => 'Presupuesto de investigación e inteligencia de mercado'
+            ],
+            7 => [
+                'budget' => 800.00,
+                'observacion' => 'Contratación artística (habilitado desde ronda 2)'
+            ],
+            default => ['observacion' => 'Decisión de ronda']
+        };
+    }
+
+    private function syncFormFromPayload(int $stage, array $payload): void
+    {
+        if (isset($payload['hire'])) $this->formHire = (int)$payload['hire'];
+        if (isset($payload['fire'])) $this->formFire = (int)$payload['fire'];
+        if (isset($payload['drinks'])) $this->formDrinks = (int)$payload['drinks'];
+        if (isset($payload['mixers'])) $this->formMixers = (int)$payload['mixers'];
+        if (isset($payload['ticket'])) $this->formTicket = (float)$payload['ticket'];
+        if (isset($payload['drink'])) $this->formDrink = (float)$payload['drink'];
+        if (isset($payload['combo'])) $this->formCombo = (float)$payload['combo'];
+        if (isset($payload['vip'])) $this->formVip = (float)$payload['vip'];
+        if (isset($payload['budget'])) {
+            if ($stage === 4) $this->formAdBudget = (float)$payload['budget'];
+            elseif ($stage === 6) $this->formResearchBudget = (float)$payload['budget'];
+            elseif ($stage === 7) $this->formArtistBudget = (float)$payload['budget'];
+        }
+        if (isset($payload['capacity'])) $this->formCapacity = (int)$payload['capacity'];
+        if (isset($payload['vipTables'])) $this->formVipTables = (int)$payload['vipTables'];
+    }
+
+    public function syncPayloadFromForm(): void
+    {
+        $stage = $this->editedStage ?: 1;
+        $payload = match ($stage) {
+            1 => ['hire' => (int)$this->formHire, 'fire' => (int)$this->formFire],
+            2 => ['drinks' => (int)$this->formDrinks, 'mixers' => (int)$this->formMixers],
+            3 => [
+                'ticket' => (float)$this->formTicket,
+                'drink' => (float)$this->formDrink,
+                'combo' => (float)$this->formCombo,
+                'vip' => (float)$this->formVip,
+            ],
+            4 => ['budget' => (float)$this->formAdBudget],
+            5 => ['capacity' => (int)$this->formCapacity, 'vipTables' => (int)$this->formVipTables],
+            6 => ['budget' => (float)$this->formResearchBudget],
+            7 => ['budget' => (float)$this->formArtistBudget],
+            default => ['observacion' => '']
+        };
+        $this->draftJson = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function updated($propertyName): void
+    {
+        if (str_starts_with($propertyName, 'form')) {
+            $this->syncPayloadFromForm();
+        }
+    }
+
     private function loadDraft(array $snapshot): void
     {
         $stage = $snapshot['round']['current_stage'] ?? null;
         $this->editedStage = $stage ? (int)$stage : null;
-        $this->draftJson = json_encode($snapshot['current_draft']['payload'] ?? new \stdClass(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $currentPayload = $snapshot['current_draft']['payload'] ?? null;
+
+        // Si no hay borrador previo, precargar automáticamente los valores recomendados
+        if (!$currentPayload && $this->editedStage) {
+            $currentPayload = $this->getStageTemplatePayload($this->editedStage);
+        }
+
+        if ($currentPayload && $this->editedStage) {
+            $this->syncFormFromPayload($this->editedStage, $currentPayload);
+            $this->draftJson = json_encode($currentPayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        } else {
+            $this->draftJson = "{}";
+        }
+
         $this->confirmAcknowledged = false;
     }
 
@@ -52,46 +168,10 @@ final class GameConsole extends Component
 
     public function loadStageTemplate(int $stage): void
     {
-        $templates = [
-            1 => [
-                'hire' => 0,
-                'fire' => 0,
-                'observacion' => 'Personal base: 6 colaboradores. Nómina: Bs 550 c/u'
-            ],
-            2 => [
-                'drinks' => 130,
-                'mixers' => 100,
-                'observacion' => 'Costo unitario bebidas: Bs 12. Mixers: Bs 5. CPP valorizado.'
-            ],
-            3 => [
-                'ticket' => 30.00,
-                'drink' => 35.00,
-                'combo' => 45.00,
-                'vip' => 120.00,
-                'observacion' => 'Precios competitivos por segmento y barra.'
-            ],
-            4 => [
-                'budget' => 800.00,
-                'observacion' => 'Presupuesto de visibilidad y posicionamiento de marca.'
-            ],
-            5 => [
-                'capacity' => 0,
-                'vipTables' => 0,
-                'observacion' => 'Bs 250 por plaza nueva, Bs 1.800 por mesa VIP (5 puestos).'
-            ],
-            6 => [
-                'budget' => 200.00,
-                'observacion' => 'Investigación de mercado e información gerencial.'
-            ],
-            7 => [
-                'budget' => 800.00,
-                'observacion' => 'Artistas invitados (habilitado desde la ronda 2).'
-            ]
-        ];
-
-        $payload = $templates[$stage] ?? ['observacion' => 'Parámetros de decisión'];
+        $payload = $this->getStageTemplatePayload($stage);
+        $this->syncFormFromPayload($stage, $payload);
         $this->draftJson = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $this->notice = "📋 Plantilla de la Etapa {$stage} cargada en el borrador con valores recomendados.";
+        $this->notice = "📋 Parámetros de la Etapa {$stage} cargados con éxito.";
     }
 
     public function saveDraft(MmomReadService $reads, MmomDecisionService $decisions): void
@@ -109,20 +189,24 @@ final class GameConsole extends Component
             if ($stage !== $this->editedStage) {
                 throw ValidationException::withMessages(['draftJson' => 'La etapa cambió; actualice la pantalla.']);
             }
+
+            // Sincronizar desde los campos si fuera necesario
+            $this->syncPayloadFromForm();
+
             if (strlen($this->draftJson) > 32768) {
                 throw ValidationException::withMessages(['draftJson' => 'El borrador supera el límite permitido de 32 KB.']);
             }
             try { 
                 $decoded = json_decode($this->draftJson, true, 512, JSON_THROW_ON_ERROR); 
             } catch (\JsonException $exception) { 
-                throw ValidationException::withMessages(['draftJson' => 'El formato JSON no es válido.']); 
+                throw ValidationException::withMessages(['draftJson' => 'El formato no es válido.']); 
             }
             if (!is_array($decoded) || array_is_list($decoded)) {
-                throw ValidationException::withMessages(['draftJson' => 'Se requiere un objeto JSON estructurado con claves.']);
+                throw ValidationException::withMessages(['draftJson' => 'Se requiere un objeto estructurado con parámetros válidos.']);
             }
 
             $decisions->draft($this->actor(), $this->gameId, (int)$stage, $decoded);
-            $this->notice = '✓ Borrador guardado correctamente. Marca la casilla y confirma cuando estés listo.';
+            $this->notice = '✓ Borrador guardado correctamente. Marca la casilla y presiona Confirmar cuando estés listo.';
             $this->confirmAcknowledged = false;
         } catch (ValidationException $e) {
             $this->notice = '⚠️ ' . collect($e->errors())->flatten()->first();
@@ -147,7 +231,10 @@ final class GameConsole extends Component
                 throw ValidationException::withMessages(['draftJson' => 'Debes marcar la casilla comprendiendo que la decisión es inmutable.']);
             }
             if (!$snapshot['current_draft']) {
-                throw ValidationException::withMessages(['draftJson' => 'Primero debes guardar un borrador antes de confirmar.']);
+                // Auto guardar el borrador antes de confirmar si no existía
+                $this->syncPayloadFromForm();
+                $decoded = json_decode($this->draftJson, true, 512, JSON_THROW_ON_ERROR);
+                $decisions->draft($this->actor(), $this->gameId, (int)$stage, $decoded);
             }
 
             $decisions->confirm($this->actor(), $this->gameId, (int)$stage, (string)\Illuminate\Support\Str::uuid());

@@ -19,11 +19,16 @@ final class MmomReadService
         $admin = DB::table('identity.user_roles')->where('user_id',$actor->id)->where('role','admin')->exists();
         if ($admin) {
             $this->authorization->requireAdmin($actor);
-            $games=DB::table('game.games')->orderByDesc('created_at')->limit(100)->get(['id','name','status','current_round']);
+            $games=DB::table('game.games')
+                ->where('status', '!=', 'archived')
+                ->orderByDesc('created_at')
+                ->limit(100)
+                ->get(['id','name','status','current_round']);
         } else {
             $games=DB::table('game.games as g')
                 ->join('game.assignments as a','a.game_id','=','g.id')
                 ->where('a.user_id',$actor->id)->where('a.is_current',true)
+                ->where('g.status', '!=', 'archived')
                 ->orderByDesc('g.created_at')->limit(100)->get(['g.id','g.name','g.status','g.current_round']);
         }
         return $games->map(fn($g)=>(array)$g)->all();
@@ -116,16 +121,19 @@ final class MmomReadService
                     'satisfaction_score' => round((float)($dims['satisfaction'] ?? 0), 1),
                     'artist_score' => round((float)($dims['artists'] ?? 0), 1),
                 ];
-                $lastRoundResults[] = [
-                    'club_name' => $s->club_name,
-                    'revenue' => (float)($metrics['revenue'] ?? 0),
-                    'expenses' => (float)($metrics['expenses'] ?? 0),
-                    'net_profit' => (float)($metrics['net_profit'] ?? 0),
-                    'served' => (int)($metrics['served'] ?? 0),
-                    'rejected' => (int)($metrics['rejected'] ?? 0),
-                    'palo_issued' => (float)($metrics['palo_issued'] ?? 0),
-                    'cash' => (float)($metrics['cash'] ?? 100000),
-                ];
+            }
+        }
+
+        // Load operational & financial summaries from simulation.engine_runs if available
+        $latestRun = DB::table('simulation.engine_runs')
+            ->where('game_id', $gameId)
+            ->orderByDesc('round_number')
+            ->first();
+
+        if ($latestRun) {
+            $parsedRun = json_decode((string)$latestRun->output_data, true);
+            if (is_array($parsedRun) && !empty($parsedRun)) {
+                $lastRoundResults = $parsedRun;
             }
         }
 

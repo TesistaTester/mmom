@@ -151,6 +151,15 @@
                            style="background:#21262d;color:#79c0ff;border:1px solid #30363d;padding:0.75rem 0.95rem;border-radius:6px;text-decoration:none;font-size:0.9rem;font-weight:700;">
                             💾 JSON
                         </a>
+                        @if($isAdmin)
+                            <button type="button" 
+                                    wire:click="deleteGame('{{ $game['id'] }}')" 
+                                    wire:confirm="¿Seguro que deseas eliminar la partida '{{ $game['name'] }}'? Desaparecerá permanentemente del listado."
+                                    title="Eliminar partida"
+                                    style="background:#21262d;color:#ff7b72;border:1px solid #da3633;padding:0.75rem 0.95rem;border-radius:6px;cursor:pointer;font-weight:700;">
+                                🗑️
+                            </button>
+                        @endif
                     </div>
                 </article>
             @empty

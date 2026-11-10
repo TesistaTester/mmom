@@ -212,11 +212,143 @@
                         🔒 <strong>Decisión Inmutable Confirmada:</strong> Tu empresa ya ha confirmado la decisión para la Etapa {{ $snapshot['round']['current_stage'] }}. No puede ser alterada. Espera a que el facilitador avance de etapa.
                     </div>
                 @else
-                    <label for="mmom-decision" style="font-weight:600;color:#f0f6fc;margin-bottom:0.4rem;display:block;">
-                        Borrador de Decisión (Objeto JSON estructurado):
-                    </label>
-                    <textarea id="mmom-decision" wire:model="draftJson" spellcheck="false" rows="8"
-                              style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:0.95rem;line-height:1.45;width:100%;background:#0d1117;color:#f0f6fc;border:1px solid #30363d;padding:0.85rem;border-radius:6px;"></textarea>
+                    {{-- CAMPOS VISUALES SEGÚN LA ETAPA ACTIVA --}}
+                    @php $stageNum = (int)$snapshot['round']['current_stage']; @endphp
+
+                    <div style="background:#0d1117;border:1px solid #30363d;padding:1.25rem;border-radius:8px;margin-bottom:1.2rem;">
+                        <div style="color:#79c0ff;font-weight:700;font-size:1rem;margin-bottom:0.8rem;">
+                            Parámetros de Decisión: {{ $stageNames[$stageNum] ?? "Etapa {$stageNum}" }}
+                        </div>
+
+                        {{-- ETAPA 1: PERSONAL --}}
+                        @if($stageNum === 1)
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:0.8rem;">
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Nuevas Contrataciones (personas):</label>
+                                    <input type="number" wire:model.live="formHire" min="0" max="15" step="1" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Rango: 0 a 15 personas</span>
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Retiros / Despidos (personas):</label>
+                                    <input type="number" wire:model.live="formFire" min="0" max="15" step="1" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Rango: 0 a 15 personas</span>
+                                </div>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Personal inicial de referencia: 6 personas. Cada colaborador genera una nómina fija de Bs 550 por ronda.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 2: INVENTARIO --}}
+                        @if($stageNum === 2)
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:0.8rem;">
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Bebidas a comprar (unidades):</label>
+                                    <input type="number" wire:model.live="formDrinks" min="0" max="1500" step="10" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Costo unitario: Bs 12.00</span>
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Mixers a comprar (unidades):</label>
+                                    <input type="number" wire:model.live="formMixers" min="0" max="1500" step="10" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Costo unitario: Bs 5.00</span>
+                                </div>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Cada combo consume 1 bebida + 1 mixer. El stock sobrante genera costo de almacenamiento de Bs 0.15 por unidad.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 3: PRECIOS --}}
+                        @if($stageNum === 3)
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:0.8rem;">
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Precio Entrada (Bs):</label>
+                                    <input type="number" wire:model.live="formTicket" min="10" max="200" step="1" style="width:100%;">
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Bebida en Barra (Bs):</label>
+                                    <input type="number" wire:model.live="formDrink" min="10" max="200" step="1" style="width:100%;">
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Combo Barra (Bs):</label>
+                                    <input type="number" wire:model.live="formCombo" min="15" max="300" step="1" style="width:100%;">
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Servicio VIP Adicional (Bs):</label>
+                                    <input type="number" wire:model.live="formVip" min="50" max="1000" step="5" style="width:100%;">
+                                </div>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Los precios afectan directamente la atracción de clientes en el modelo Softmax y los ingresos de venta.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 4: PUBLICIDAD --}}
+                        @if($stageNum === 4)
+                            <div style="margin-bottom:0.8rem;">
+                                <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Presupuesto de Publicidad (Bs):</label>
+                                <input type="number" wire:model.live="formAdBudget" min="0" max="20000" step="100" style="width:100%;">
+                                <span style="color:#8b949e;font-size:0.8rem;">Rango recomendado: Bs 500 a Bs 3.000</span>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Eleva la preferencia de marca en los 4 segmentos de consumidores del mercado.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 5: INFRAESTRUCTURA --}}
+                        @if($stageNum === 5)
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:0.8rem;">
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Plazas Adicionales de Aforo:</label>
+                                    <input type="number" wire:model.live="formCapacity" min="0" max="100" step="10" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Costo: Bs 250 / plaza</span>
+                                </div>
+                                <div>
+                                    <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Mesas VIP Adicionales:</label>
+                                    <input type="number" wire:model.live="formVipTables" min="0" max="10" step="1" style="width:100%;">
+                                    <span style="color:#8b949e;font-size:0.8rem;">Costo: Bs 1.800 / mesa (5 puestos)</span>
+                                </div>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Solo invierte si cuentas con suficiente caja propia disponible. PALO nunca financia infraestructura.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 6: INVESTIGACIÓN --}}
+                        @if($stageNum === 6)
+                            <div style="margin-bottom:0.8rem;">
+                                <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Presupuesto de Estudios de Mercado (Bs):</label>
+                                <input type="number" wire:model.live="formResearchBudget" min="0" max="15000" step="50" style="width:100%;">
+                                <span style="color:#8b949e;font-size:0.8rem;">Rango sugerido: Bs 100 a Bs 1.000</span>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Adquisición de reportes de inteligencia comercial sobre la competencia.
+                            </div>
+                        @endif
+
+                        {{-- ETAPA 7: ARTISTAS --}}
+                        @if($stageNum === 7)
+                            <div style="margin-bottom:0.8rem;">
+                                <label style="color:#c9d1d9;font-size:0.85rem;font-weight:600;">Presupuesto de Contratación Artística (Bs):</label>
+                                <input type="number" wire:model.live="formArtistBudget" min="0" max="30000" step="200" style="width:100%;">
+                                <span style="color:#8b949e;font-size:0.8rem;">Rango sugerido: Bs 500 a Bs 5.000</span>
+                            </div>
+                            <div style="background:#161b22;padding:0.75rem 1rem;border-radius:6px;border-left:3px solid #1f6feb;font-size:0.85rem;color:#c9d1d9;">
+                                💡 Espectáculos especiales y DJs en vivo que disparan la asistencia y la dimensión de artistas del ranking MIEC.
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- VISTA DESPLEGABLE DE JSON --}}
+                    <details style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:0.75rem;margin-bottom:1.2rem;">
+                        <summary style="color:#79c0ff;cursor:pointer;font-weight:600;font-size:0.85rem;">
+                            ⚙️ Modo Técnico: Ver o Editar Código JSON
+                        </summary>
+                        <div style="margin-top:0.75rem;">
+                            <textarea id="mmom-decision" wire:model="draftJson" spellcheck="false" rows="5"
+                                      style="font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:0.9rem;line-height:1.4;width:100%;background:#0d1117;color:#f0f6fc;border:1px solid #30363d;padding:0.75rem;border-radius:6px;"></textarea>
+                        </div>
+                    </details>
 
                     @error('draftJson')
                         <p class="error" role="alert" style="color:#ff7b72;margin-top:0.4rem;font-weight:500;">{{ $message }}</p>
