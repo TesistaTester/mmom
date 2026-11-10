@@ -1,14 +1,16 @@
-<section>
-    {{-- Navegación por pestañas --}}
+<section x-data="{ activeTab: 'games', showModal: false }">
+    {{-- Navegación por pestañas instantánea en el navegador (0 ms) --}}
     <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;border-bottom:1px solid #37455f;padding-bottom:0.75rem;">
         <button type="button" 
-                wire:click="setTab('games')" 
-                style="background: {{ $activeTab === 'games' ? '#346cca' : '#223049' }}; padding: 0.6rem 1.2rem; font-size: 0.95rem;">
+                @click="activeTab = 'games'" 
+                :style="activeTab === 'games' ? 'background:#346cca;box-shadow:0 2px 8px rgba(52,108,202,0.4);' : 'background:#223049;'"
+                style="padding: 0.6rem 1.2rem; font-size: 0.95rem; transition: all 0.15s; border-radius:6px; font-weight:bold;">
             🎮 Partidas de Simulación
         </button>
         <button type="button" 
-                wire:click="setTab('tutorial')" 
-                style="background: {{ $activeTab === 'tutorial' ? '#1f7a55' : '#223049' }}; padding: 0.6rem 1.2rem; font-size: 0.95rem;">
+                @click="activeTab = 'tutorial'" 
+                :style="activeTab === 'tutorial' ? 'background:#1f7a55;box-shadow:0 2px 8px rgba(31,122,85,0.4);' : 'background:#223049;'"
+                style="padding: 0.6rem 1.2rem; font-size: 0.95rem; transition: all 0.15s; border-radius:6px; font-weight:bold;">
             📖 Tutorial y Guía del Operador
         </button>
     </div>
@@ -29,7 +31,7 @@
     {{-- ============================================================== --}}
     {{-- PESTAÑA 1: LISTADO Y GESTIÓN DE PARTIDAS                       --}}
     {{-- ============================================================== --}}
-    @if($activeTab === 'games')
+    <div x-show="activeTab === 'games'">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
             <div>
                 <h1 style="margin:0 0 0.3rem 0;color:#92c5ff;">Partidas de Simulación</h1>
@@ -38,71 +40,70 @@
 
             @if($isAdmin)
                 <button type="button" 
-                        wire:click="openCreateModal" 
+                        @click="showModal = true" 
                         style="background:#238636;padding:0.75rem 1.5rem;font-weight:bold;font-size:1rem;box-shadow:0 4px 12px rgba(35,134,54,0.3);">
                     ➕ Crear Nueva Partida
                 </button>
             @endif
         </div>
 
-        {{-- Modal / Formulario de Creación de Partida --}}
-        @if($showCreateModal)
-            <div style="background:#1c293f;border:2px solid #388bfd;padding:1.5rem;border-radius:12px;margin-bottom:2rem;box-shadow:0 12px 28px rgba(0,0,0,0.4);">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                    <h2 style="margin:0;color:#58a6ff;">Nueva Partida de Simulación MMOM</h2>
-                    <button type="button" class="secondary" wire:click="closeCreateModal" style="padding:0.3rem 0.7rem;font-size:0.85rem;">✖ Cancelar</button>
-                </div>
-                
-                <p class="muted" style="font-size:0.9rem;margin-bottom:1.2rem;">
-                    Este asistente configurará automáticamente el entorno para las 7 discotecas competidoras y sus 8 rondas de juego.
-                </p>
-
-                <form wire:submit.prevent="createGame">
-                    <div style="margin-bottom:1rem;">
-                        <label for="gameName" style="color:#c9d1d9;font-weight:bold;margin-bottom:0.4rem;">Nombre de la Partida / Torneo:</label>
-                        <input id="gameName" type="text" wire:model="newGameName" 
-                               style="width:100%;padding:0.75rem;background:#0d1625;border:1px solid #3b4d6e;border-radius:6px;color:#eef1fb;font-size:1rem;"
-                               placeholder="Ejemplo: Torneo Universitario 2026 - Grupo A">
-                        @error('newGameName') <span style="color:#ff7b72;font-size:0.85rem;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.2rem;">
-                        <div>
-                            <label style="color:#c9d1d9;font-weight:bold;margin-bottom:0.4rem;">Modelo de Mercado Inicial:</label>
-                            <select wire:model="initialModel" style="width:100%;padding:0.75rem;background:#0d1625;border:1px solid #3b4d6e;border-radius:6px;color:#eef1fb;font-size:0.95rem;">
-                                <option value="A">Modelo A (Condiciones Estándar de Mercado)</option>
-                                <option value="B">Modelo B (Mayor Variabilidad Competitiva)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style="background:#131e30;padding:1rem;border-radius:8px;border:1px dashed #304870;margin-bottom:1.5rem;">
-                        <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;margin:0;">
-                            <input type="checkbox" wire:model="autoAssignAndPrepare" style="margin-top:0.25rem;transform:scale(1.2);">
-                            <div>
-                                <strong style="color:#79c0ff;">Configuración Automática con 1 Clic (Recomendado)</strong>
-                                <p class="muted" style="margin:0.2rem 0 0 0;font-size:0.85rem;">
-                                    Asignará automáticamente a los 7 participantes oficiales (<code>jugador1@mmom.com</code> al <code>jugador7@mmom.com</code>) a las 7 discotecas y dejará las 8 rondas listas para iniciar.
-                                </p>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div style="display:flex;gap:1rem;align-items:center;">
-                        <button type="submit" 
-                                wire:loading.attr="disabled"
-                                wire:target="createGame"
-                                style="background:#238636;padding:0.85rem 1.8rem;font-weight:bold;font-size:1rem;">
-                            <span wire:loading.remove wire:target="createGame">🚀 Crear y Preparar Partida</span>
-                            <span wire:loading wire:target="createGame">⏳ Configurando partida... por favor espera</span>
-                        </button>
-                        <button type="button" class="secondary" wire:click="closeCreateModal" wire:loading.attr="disabled">
-                            Descartar
-                        </button>
-                    </div>
-                </form>
+        {{-- Modal / Formulario de Creación de Partida (Apertura instantánea) --}}
+        <div x-show="showModal" style="display:none;" 
+             style="background:#1c293f;border:2px solid #388bfd;padding:1.5rem;border-radius:12px;margin-bottom:2rem;box-shadow:0 12px 28px rgba(0,0,0,0.4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h2 style="margin:0;color:#58a6ff;">Nueva Partida de Simulación MMOM</h2>
+                <button type="button" class="secondary" @click="showModal = false" style="padding:0.3rem 0.7rem;font-size:0.85rem;">✖ Cancelar</button>
             </div>
-        @endif
+            
+            <p class="muted" style="font-size:0.9rem;margin-bottom:1.2rem;">
+                Este asistente configurará automáticamente el entorno para las 7 discotecas competidoras y sus 8 rondas de juego.
+            </p>
+
+            <form wire:submit.prevent="createGame">
+                <div style="margin-bottom:1rem;">
+                    <label for="gameName" style="color:#c9d1d9;font-weight:bold;margin-bottom:0.4rem;">Nombre de la Partida / Torneo:</label>
+                    <input id="gameName" type="text" wire:model="newGameName" 
+                           style="width:100%;padding:0.75rem;background:#0d1625;border:1px solid #3b4d6e;border-radius:6px;color:#eef1fb;font-size:1rem;"
+                           placeholder="Ejemplo: Torneo Universitario 2026 - Grupo A">
+                    @error('newGameName') <span style="color:#ff7b72;font-size:0.85rem;">{{ $message }}</span> @enderror
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.2rem;">
+                    <div>
+                        <label style="color:#c9d1d9;font-weight:bold;margin-bottom:0.4rem;">Modelo de Mercado Inicial:</label>
+                        <select wire:model="initialModel" style="width:100%;padding:0.75rem;background:#0d1625;border:1px solid #3b4d6e;border-radius:6px;color:#eef1fb;font-size:0.95rem;">
+                            <option value="A">Modelo A (Condiciones Estándar de Mercado)</option>
+                            <option value="B">Modelo B (Mayor Variabilidad Competitiva)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background:#131e30;padding:1rem;border-radius:8px;border:1px dashed #304870;margin-bottom:1.5rem;">
+                    <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;margin:0;">
+                        <input type="checkbox" wire:model="autoAssignAndPrepare" style="margin-top:0.25rem;transform:scale(1.2);">
+                        <div>
+                            <strong style="color:#79c0ff;">Configuración Automática con 1 Clic (Recomendado)</strong>
+                            <p class="muted" style="margin:0.2rem 0 0 0;font-size:0.85rem;">
+                                Asignará automáticamente a los 7 participantes oficiales (<code>jugador1@mmom.com</code> al <code>jugador7@mmom.com</code>) a las 7 discotecas y dejará las 8 rondas listas para iniciar.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <div style="display:flex;gap:1rem;align-items:center;">
+                    <button type="submit" 
+                            wire:loading.attr="disabled"
+                            wire:target="createGame"
+                            style="background:#238636;padding:0.85rem 1.8rem;font-weight:bold;font-size:1rem;">
+                        <span wire:loading.remove wire:target="createGame">🚀 Crear y Preparar Partida</span>
+                        <span wire:loading wire:target="createGame">⏳ Configurando partida... por favor espera</span>
+                    </button>
+                    <button type="button" class="secondary" @click="showModal = false" wire:loading.attr="disabled">
+                        Descartar
+                    </button>
+                </div>
+            </form>
+        </div>
 
         {{-- Grid de Partidas --}}
         <div class="grid">
@@ -154,19 +155,19 @@
                         @endif
                     </p>
                     @if($isAdmin)
-                        <button type="button" wire:click="openCreateModal" style="background:#238636;padding:0.75rem 1.6rem;font-weight:bold;font-size:1rem;">
+                        <button type="button" @click="showModal = true" style="background:#238636;padding:0.75rem 1.6rem;font-weight:bold;font-size:1rem;">
                             ➕ Crear Primera Partida Ahora
                         </button>
                     @endif
                 </div>
             @endforelse
         </div>
-    @endif
+    </div>
 
     {{-- ============================================================== --}}
     {{-- PESTAÑA 2: TUTORIAL Y GUÍA PASO A PASO DEL OPERADOR           --}}
     {{-- ============================================================== --}}
-    @if($activeTab === 'tutorial')
+    <div x-show="activeTab === 'tutorial'" style="display:none;">
         <article class="card" style="padding:2rem;line-height:1.6;">
             <h1 style="color:#58a6ff;margin-top:0;">📖 Manual de Operación de la Simulación MMOM</h1>
             <p class="muted">
@@ -253,5 +254,5 @@
                 <li><strong>MFA Administrativo:</strong> Tu cuenta <code>admin@mmom.com</code> tiene su segundo factor activado por defecto para garantizar que las acciones de avance de etapa sean autorizadas.</li>
             </ul>
         </article>
-    @endif
+    </div>
 </section>
