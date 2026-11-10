@@ -11,6 +11,17 @@ textarea{display:block;width:100%;min-height:160px;background:#0d1625;color:#eef
 label{display:block;margin:.7rem 0}.error{color:#ffc1bc}.notice{padding:.8rem;background:#183a36;border:1px solid #318474;border-radius:6px}
 :focus-visible{outline:3px solid #e6c666;outline-offset:2px} @media(prefers-color-scheme:light){:root{background:#f7f9fd;color:#17243c;color-scheme:light}.card{background:white;border-color:#ccd5e3}header{background:#e5edfa;border-color:#ccd5e3}.muted{color:#47576d}textarea{background:white;color:#111}}
 </style>@livewireStyles</head><body>
-<header><strong>MMOM · Simulador de Discotecas</strong> · E7 V0.1 <span class="tag">Entorno de desarrollo</span></header>
+<header style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <div><strong>MMOM · Simulador de Discotecas</strong> · E7 V0.1 <span class="tag">Entorno de desarrollo</span></div>
+    @auth
+    <div style="display:flex;align-items:center;gap:1rem;">
+        <span class="muted" style="font-size:0.9rem;">👤 {{ auth()->user()->display_name ?? auth()->user()->email }}</span>
+        <form method="POST" action="{{ route('logout') }}" style="display:inline;margin:0;">
+            @csrf
+            <button type="submit" class="secondary" style="padding:0.35rem 0.75rem;font-size:0.8rem;">Cerrar sesión</button>
+        </form>
+    </div>
+    @endauth
+</header>
 <main>{{ $slot }}<p class="muted">Resultados no oficiales. Sin cierre MIFIV ni efectos financieros automáticos.</p></main>
 @livewireScripts</body></html>
