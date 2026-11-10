@@ -14,7 +14,7 @@ RUN composer install \
 # ==============================================================
 # Etapa 2: Imagen de producción basada en PHP 8.2 y Apache
 # ==============================================================
-FROM php:8.2-apache-bullseye
+FROM php:8.2-apache-bookworm
 
 # Instalar extensiones necesarias (PostgreSQL, zip, bcmath, opcache)
 RUN apt-get update && apt-get install -y --no-install-recommends \
