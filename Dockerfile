@@ -16,18 +16,11 @@ RUN composer install \
 # ==============================================================
 FROM php:8.2-apache-bookworm
 
-# Instalar extensiones necesarias (PostgreSQL, zip, bcmath, opcache)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    libzip-dev \
-    unzip \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_pgsql \
-        pgsql \
-        bcmath \
-        zip \
-        opcache \
+# Instalar extensiones mediante el instalador oficial de extensiones PHP para Docker (mucho más rápido)
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+    && install-php-extensions pdo_pgsql pgsql bcmath zip opcache \
     && a2enmod rewrite headers \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
