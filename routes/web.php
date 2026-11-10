@@ -6,4 +6,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-require base_path('routes/mmom_e2.php');
+
+require __DIR__.'/mmom_e2.php';
+
+require __DIR__.'/mmom_e7.php';

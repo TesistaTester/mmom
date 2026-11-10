@@ -6,12 +6,20 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        $path = base_path('database/sql/003_e2_mgup.sql');
-        DB::unprepared(file_get_contents($path));
+        DB::connection('pgsql')->unprepared(self::readSql('003_e2_mgup.sql'));
     }
 
     public function down(): void
     {
-        DB::unprepared(file_get_contents(base_path('database/sql/004_e2_rollback.sql')));
+        DB::connection('pgsql')->unprepared(self::readSql('004_e2_rollback.sql'));
+    }
+    private static function readSql(string $filename): string
+    {
+        $path = database_path('sql/'.$filename);
+        $sql = @file_get_contents($path);
+        if ($sql === false) {
+            throw new \RuntimeException('Falta el archivo SQL de MMOM: '.$path);
+        }
+        return $sql;
     }
 };

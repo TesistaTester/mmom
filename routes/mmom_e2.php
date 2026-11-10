@@ -4,7 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MmomE2Controller;
 
-Route::middleware(['web','auth'])->prefix('mmom/e2')->group(function () {
+Route::middleware(['auth','throttle:60,1'])->prefix('mmom/e2')->group(function () {
     Route::post('/games',[MmomE2Controller::class,'create']);
     Route::post('/games/{gameId}/assignments',[MmomE2Controller::class,'assign']);
     Route::post('/games/{gameId}/prepare',[MmomE2Controller::class,'prepare']);

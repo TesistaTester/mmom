@@ -1,0 +1,9 @@
+// EDITAR config/auth.php en el proyecto Laravel existente (no es un archivo completo).
+// En auth.providers.users.model, configurar:
+'users' => [
+    'driver' => 'eloquent',
+    'model' => App\Models\MmomUser::class,
+],
+// Mantener web.guard: driver=session; provider=users.
+// No modificar manualmente la tabla users predeterminada como sustituto de identity.users.
+// Para Fortify integrar y comprobar inicio de sesion y MFA de un usuario administrador real.

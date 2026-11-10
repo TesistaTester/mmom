@@ -1,0 +1,11 @@
+{
+  "source": "MMOM_E8_Entrega_V0.1",
+  "php_files_checked": 46,
+  "php_lint_failures": [],
+  "e8_runner_exit": 0,
+  "e8_stdout_tail": "MMOM E8 | local: PASS | lint: 46 | suites: 5 | integrated: NOT RUN\nrun_cpp_tests.php PASS\nrun_e4_tests.php PASS\nrun_e5_tests.php PASS\nrun_e6_tests.php PASS\nrun_e8_regression.php PASS\nEvidence: /mnt/data/MMOM_INT_01_V0.1/overlay/docs/EVIDENCIA_E8_LOCAL.json\n",
+  "e8_stderr_tail": "",
+  "postgres_integration_executed": false,
+  "composer_available": false,
+  "scope": "static corrections and local tests; no functional acceptance"
+}
