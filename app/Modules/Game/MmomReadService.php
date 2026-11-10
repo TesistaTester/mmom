@@ -50,9 +50,105 @@ final class MmomReadService
         if ($round && $round->status==='active' && $round->deadline_at) {
             $remaining=max(0,now('UTC')->diffInSeconds(Carbon::parse($round->deadline_at),false));
         }
-        $snapshot=['game'=>(array)$game,'round'=>$round?(array)$round:null,
-            'server_now'=>now('UTC')->toIso8601String(),'seconds_remaining'=>(int)$remaining,
-            'can_manage'=>$isAdmin,'company_id'=>$companyId];
+        // Companies progress in current round
+        $currentRoundNum = (int)($game->current_round ?: 1);
+        $confirmedCounts = DB::table('game.confirmed_decisions')
+            ->where('game_id', $gameId)
+            ->where('round_number', $currentRoundNum)
+            ->groupBy('company_id')
+            ->select('company_id', DB::raw('count(distinct stage) as confirmed_count'))
+            ->pluck('confirmed_count', 'company_id');
+
+        $companies = DB::table('game.companies as c')
+            ->join('catalog.discotheques as d', 'd.id', '=', 'c.discotheque_id')
+            ->leftJoin('game.assignments as a', fn($j) => $j->on('a.company_id', '=', 'c.id')->where('a.is_current', true))
+            ->leftJoin('identity.users as u', 'u.id', '=', 'a.user_id')
+            ->where('c.game_id', $gameId)
+            ->orderBy('d.code')
+            ->get([
+                'c.id as company_id',
+                'd.code as club_code',
+                'd.name as club_name',
+                'u.display_name as player_name',
+                'u.email as player_email'
+            ])
+            ->map(function ($c) use ($confirmedCounts) {
+                $cArr = (array)$c;
+                $cArr['confirmed_stages_count'] = (int)($confirmedCounts[$c->company_id] ?? 0);
+                return $cArr;
+            })
+            ->all();
+
+        // Latest MIFIV candidate and MIEC ranking scores
+        $latestCandidate = DB::table('analytics.mifiv_candidates')
+            ->where('game_id', $gameId)
+            ->orderByDesc('round_number')
+            ->first();
+
+        $miecRanking = [];
+        $lastRoundResults = [];
+        if ($latestCandidate) {
+            $scores = DB::table('analytics.miec_candidate_scores as s')
+                ->join('game.companies as c', 'c.id', '=', 's.company_id')
+                ->join('catalog.discotheques as d', 'd.id', '=', 'c.discotheque_id')
+                ->where('s.candidate_id', $latestCandidate->id)
+                ->orderBy('s.rank')
+                ->get([
+                    's.rank',
+                    'd.name as club_name',
+                    's.weighted_score',
+                    's.dimension_scores',
+                    's.verified_metrics',
+                    'c.id as company_id'
+                ]);
+
+            foreach ($scores as $s) {
+                $dims = json_decode((string)$s->dimension_scores, true) ?: [];
+                $metrics = json_decode((string)$s->verified_metrics, true) ?: [];
+                $miecRanking[] = [
+                    'rank' => (int)$s->rank,
+                    'club_name' => $s->club_name,
+                    'company_id' => $s->company_id,
+                    'weighted_score' => round((float)$s->weighted_score, 2),
+                    'profit_score' => round((float)($dims['profitability'] ?? 0), 1),
+                    'market_score' => round((float)($dims['market'] ?? 0), 1),
+                    'logistics_score' => round((float)($dims['logistics'] ?? 0), 1),
+                    'satisfaction_score' => round((float)($dims['satisfaction'] ?? 0), 1),
+                    'artist_score' => round((float)($dims['artists'] ?? 0), 1),
+                ];
+                $lastRoundResults[] = [
+                    'club_name' => $s->club_name,
+                    'revenue' => (float)($metrics['revenue'] ?? 0),
+                    'expenses' => (float)($metrics['expenses'] ?? 0),
+                    'net_profit' => (float)($metrics['net_profit'] ?? 0),
+                    'served' => (int)($metrics['served'] ?? 0),
+                    'rejected' => (int)($metrics['rejected'] ?? 0),
+                    'palo_issued' => (float)($metrics['palo_issued'] ?? 0),
+                    'cash' => (float)($metrics['cash'] ?? 100000),
+                ];
+            }
+        }
+
+        $allRounds = DB::table('game.rounds')
+            ->where('game_id', $gameId)
+            ->orderBy('round_number')
+            ->get(['round_number', 'status', 'starts_at', 'closed_at'])
+            ->map(fn($r) => (array)$r)
+            ->all();
+
+        $snapshot = [
+            'game' => (array)$game,
+            'round' => $round ? (array)$round : null,
+            'all_rounds' => $allRounds,
+            'companies' => $companies,
+            'miec_ranking' => $miecRanking,
+            'last_round_results' => $lastRoundResults,
+            'candidate_round' => $latestCandidate ? (int)$latestCandidate->round_number : null,
+            'server_now' => now('UTC')->toIso8601String(),
+            'seconds_remaining' => (int)$remaining,
+            'can_manage' => $isAdmin,
+            'company_id' => $companyId
+        ];
         if ($companyId && $round) {
             $stage=(int)($round->current_stage ?? 0);
             $snapshot['can_decide']=$round->status==='active' && $remaining>0 && $stage>=1 && $stage<=7

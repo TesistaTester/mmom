@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\MmomV1Controller;
 Route::middleware(['auth','throttle:60,1'])->prefix('mmom')->name('mmom.')->group(function () {
     Route::get('/games',GameIndex::class)->name('games.index');
     Route::get('/games/{gameId}',GameConsole::class)->whereUuid('gameId')->name('games.show');
+    Route::get('/games/{gameId}/export',[\App\Http\Controllers\MmomExportController::class,'export'])->whereUuid('gameId')->name('games.export');
     Route::prefix('api/v1')->name('api.v1.')->group(function () {
         Route::get('/games',[MmomV1Controller::class,'index'])->name('games.index');
         Route::get('/games/{gameId}',[MmomV1Controller::class,'show'])->whereUuid('gameId')->name('games.show');

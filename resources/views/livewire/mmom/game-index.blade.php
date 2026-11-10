@@ -139,10 +139,18 @@
                         ID: <code style="font-size:0.75rem;color:#8b949e;">{{ substr($game['id'], 0, 8) }}...</code>
                     </p>
 
-                    <a href="{{ route('mmom.games.show',['gameId'=>$game['id']]) }}" 
-                       style="display:block;text-align:center;background:#346cca;color:#fff;text-decoration:none;padding:0.7rem;border-radius:6px;font-weight:bold;">
-                        🎮 Abrir Consola de Simulación
-                    </a>
+                    <div style="display:flex;gap:0.5rem;align-items:center;">
+                        <a href="{{ route('mmom.games.show',['gameId'=>$game['id']]) }}" 
+                           style="flex:1;text-align:center;background:#346cca;color:#fff;text-decoration:none;padding:0.7rem;border-radius:6px;font-weight:bold;">
+                            🎮 Abrir Consola de Simulación
+                        </a>
+                        <a href="{{ route('mmom.games.export',['gameId'=>$game['id']]) }}" 
+                           target="_blank"
+                           title="Exportar respaldo JSON de la partida"
+                           style="background:#21262d;color:#79c0ff;border:1px solid #30363d;padding:0.7rem 0.9rem;border-radius:6px;text-decoration:none;font-size:0.9rem;font-weight:bold;">
+                            💾 JSON
+                        </a>
+                    </div>
                 </article>
             @empty
                 <div style="grid-column: 1 / -1; background:#161f30;border:1px dashed #304870;padding:3rem 2rem;text-align:center;border-radius:12px;">

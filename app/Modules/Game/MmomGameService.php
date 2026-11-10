@@ -79,16 +79,22 @@ final class MmomGameService
             $game=DB::table('game.games')->where('id',$gameId)->lockForUpdate()->first();
             if (!$game || $game->status==='draft' || !($roundNumber>=1 && $roundNumber<=8))
               throw ValidationException::withMessages(['round'=>'Partida o ronda inválida.']);
-            if ($roundNumber!==1) throw ValidationException::withMessages(['round'=>'E2 solo habilita la apertura de ronda 1; las posteriores dependen del cierre MIFIV (E6).']);
-            if ($game->status!=='prepared') throw ValidationException::withMessages(['game'=>'Solo se inicia una partida preparada.']);
-            $round=DB::table('game.rounds')->where('game_id',$gameId)->where('round_number',1)->lockForUpdate()->first();
+            if ($roundNumber===1) {
+                if ($game->status!=='prepared') throw ValidationException::withMessages(['game'=>'Solo se inicia una partida preparada.']);
+            } else {
+                $prevRound=DB::table('game.rounds')->where('game_id',$gameId)->where('round_number',$roundNumber-1)->first();
+                if (!$prevRound || !in_array($prevRound->status,['closed','published','processing','validating'],true)) {
+                    throw ValidationException::withMessages(['round'=>"La ronda anterior (".($roundNumber-1).") debe estar cerrada o validada antes de iniciar la ronda $roundNumber."]);
+                }
+            }
+            $round=DB::table('game.rounds')->where('game_id',$gameId)->where('round_number',$roundNumber)->lockForUpdate()->first();
             if (!$round || $round->status!=='pending') throw ValidationException::withMessages(['round'=>'Ronda no disponible.']);
             $start=now('UTC'); $deadline=$start->copy()->addMinutes(20);
             DB::table('game.rounds')->where('id',$round->id)->update(['status'=>'active','starts_at'=>$start,
               'deadline_at'=>$deadline,'current_stage'=>1,'state_version'=>$round->state_version+1]);
-            DB::table('game.games')->where('id',$gameId)->update(['status'=>'active','current_round'=>1,
+            DB::table('game.games')->where('id',$gameId)->update(['status'=>'active','current_round'=>$roundNumber,
               'state_version'=>$game->state_version+1,'updated_at'=>now()]);
-            $this->audit->record($gameId,$actor->id,'round.started',['round'=>1,'deadline'=>$deadline->toIso8601String()]);
+            $this->audit->record($gameId,$actor->id,'round.started',['round'=>$roundNumber,'deadline'=>$deadline->toIso8601String()]);
         },3);
     }
 
